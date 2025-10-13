@@ -5,11 +5,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Animated,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity
+  Animated,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity
 } from "react-native";
 
 interface ModalData {
