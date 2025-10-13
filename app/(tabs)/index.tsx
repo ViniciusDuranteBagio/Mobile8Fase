@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { Platform, StyleSheet } from 'react-native';
 
+import { AboutButton } from '@/components/aboutButton';
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
@@ -83,13 +84,7 @@ export default function HomeScreen() {
           <ThemedText type='defaultSemiBold'>app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.aboutButtonContainer}>
-        <Link href='/about' asChild>
-          <ThemedText type='defaultSemiBold' style={styles.aboutButton}>
-            Go to About
-          </ThemedText>
-        </Link>
-      </ThemedView>
+      <AboutButton />
     </ParallaxScrollView>
   );
 }
@@ -110,17 +105,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
-  },
-  aboutButtonContainer: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  aboutButton: {
-    backgroundColor: '#2196F3',
-    color: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    overflow: 'hidden',
   },
 });
