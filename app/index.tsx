@@ -1,8 +1,24 @@
 import React, { useState } from "react";
-import { Image, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function Index() {
   const [nome, setNome] = useState("");
+
+  const handlePress = () => {
+    if (nome.trim()) {
+      Alert.alert("Sucesso", "Bem-vindo!");
+    } else {
+      Alert.alert("Atenção", "Digite seu nome primeiro");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -19,6 +35,10 @@ export default function Index() {
         value={nome}
         onChangeText={setNome}
       />
+
+      <TouchableOpacity style={styles.button} onPress={handlePress}>
+        <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
 
       <Text style={styles.greeting}>Olá, {nome}</Text>
     </View>
@@ -45,6 +65,17 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 10,
     marginBottom: 12,
+  },
+  button: {
+    backgroundColor: "#1E90FF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
   },
   greeting: {
     fontSize: 18,
