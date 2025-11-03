@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-app-expo",
-    "slug": "my-app-expo",
+    "name": "componentes-do-react-native-exercicios",
+    "slug": "componentes-do-react-native-exercicios",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myappexpo",
+    "scheme": "componentesdoreactnativeexercicios",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
