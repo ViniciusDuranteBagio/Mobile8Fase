@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import {
   Alert,
   Image,
+  Platform,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,18 +13,35 @@ import {
 
 export default function Index() {
   const [nome, setNome] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handlePress = () => {
-    if (nome.trim()) {
-      Alert.alert("Sucesso", "Bem-vindo!");
+    const mensagem = nome.trim()
+      ? "Bem-vindo!"
+      : "Digite seu nome primeiro";
+
+    if (Platform.OS === "web") {
+      alert(mensagem);
     } else {
-      Alert.alert("Atenção", "Digite seu nome primeiro");
+      Alert.alert(nome.trim() ? "Sucesso" : "Atenção", mensagem);
     }
   };
 
+  const theme = isDarkMode ? darkTheme : lightTheme;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Olá, React Native</Text>
+    <View style={[styles.container, theme.container]}>
+      <View style={styles.switchContainer}>
+        <Text style={[styles.switchLabel, theme.text]}>Modo Escuro</Text>
+        <Switch
+          value={isDarkMode}
+          onValueChange={setIsDarkMode}
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={isDarkMode ? "#1E90FF" : "#f4f3f4"}
+        />
+      </View>
+
+      <Text style={[styles.title, theme.text]}>Olá, React Native</Text>
 
       <Image
         source={{ uri: "https://picsum.photos/200" }}
@@ -30,8 +49,9 @@ export default function Index() {
       />
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, theme.input]}
         placeholder="Digite seu nome"
+        placeholderTextColor={isDarkMode ? "#999" : "#666"}
         value={nome}
         onChangeText={setNome}
       />
@@ -40,7 +60,7 @@ export default function Index() {
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
-      <Text style={styles.greeting}>Olá, {nome}</Text>
+      <Text style={[styles.greeting, theme.text]}>Olá, {nome}</Text>
     </View>
   );
 }
@@ -52,15 +72,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
+  switchContainer: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  switchLabel: {
+    fontSize: 14,
+  },
   title: {
     fontSize: 24,
-    color: "#1E90FF",
     marginBottom: 20,
   },
   input: {
     width: 250,
     height: 44,
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 10,
@@ -79,6 +108,33 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 18,
-    color: "#333",
+  },
+});
+
+const lightTheme = StyleSheet.create({
+  container: {
+    backgroundColor: "#FFFFFF",
+  },
+  text: {
+    color: "#1E90FF",
+  },
+  input: {
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
+    color: "#000",
+  },
+});
+
+const darkTheme = StyleSheet.create({
+  container: {
+    backgroundColor: "#000000",
+  },
+  text: {
+    color: "#FFFFFF",
+  },
+  input: {
+    borderColor: "#555",
+    backgroundColor: "#222",
+    color: "#fff",
   },
 });
