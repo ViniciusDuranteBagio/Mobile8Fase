@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 export default function Index() {
   return (
@@ -9,7 +9,13 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+      <Text style={{ fontSize: 24, color: "#1E90FF", marginBottom: 20 }}>
+        Olá, React Native
+      </Text>
+      <Image
+        source={{ uri: "https://picsum.photos/200" }}
+        style={{ width: 200, height: 200 }}
+      />
     </View>
   );
 }
