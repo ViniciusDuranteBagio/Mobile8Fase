@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
+  Platform,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
-  Platform,
   TouchableOpacity,
   View,
 } from 'react-native';
 
 export default function HomeScreen() {
   const [nome, setNome] = useState('');
+  const [modoEscuro, setModoEscuro] = useState(false);
 
   const validarNome = () => {
     if (nome.trim() === '') {
@@ -29,26 +31,52 @@ export default function HomeScreen() {
     }
   };
 
+  const tema = {
+    fundo: modoEscuro ? '#000000' : '#FFFFFF',
+    texto: modoEscuro ? '#FFFFFF' : '#1E90FF',
+    inputBorda: modoEscuro ? '#888' : '#ccc',
+    botao: modoEscuro ? '#4444FF' : '#1E90FF',
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: tema.fundo }]}>
+      <View style={styles.switchContainer}>
+        <Text style={[styles.switchLabel, { color: tema.texto }]}>
+          {modoEscuro ? '🌙' : '☀️'}
+        </Text>
+        <Switch
+          value={modoEscuro}
+          onValueChange={setModoEscuro}
+          thumbColor={modoEscuro ? '#fff' : '#1E90FF'}
+          trackColor={{ false: '#aaa', true: '#4444FF' }}
+        />
+      </View>
+
       <View style={styles.content}>
-        {/* Lado esquerdo */}
         <View style={styles.leftSide}>
-          <Text style={styles.text}>Insira seu nome abaixo:</Text>
+          <Text style={[styles.text, { color: tema.texto }]}>
+            Insira seu nome abaixo:
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              { borderColor: tema.inputBorda, color: tema.texto },
+            ]}
             placeholder="Digite seu nome"
+            placeholderTextColor={modoEscuro ? '#888' : '#999'}
             value={nome}
             onChangeText={setNome}
           />
-          <TouchableOpacity style={styles.button} onPress={validarNome}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: tema.botao }]}
+            onPress={validarNome}
+          >
             <Text style={styles.buttonText}>Confirmar</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Lado direito */}
         <View style={styles.rightSide}>
-          <Text style={styles.text}>
+          <Text style={[styles.text, { color: tema.texto }]}>
             {nome ? `Olá, ${nome}!` : 'Olá, visitante!'}
           </Text>
           <Image
@@ -56,7 +84,6 @@ export default function HomeScreen() {
               uri: 'https://cdn-icons-png.flaticon.com/512/919/919851.png',
             }}
             style={styles.image}
-            resizeMode="contain"
           />
         </View>
       </View>
@@ -71,6 +98,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 20,
+  },
+  switchContainer: {
+    position: 'absolute',
+    top: 50,
+    right: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  switchLabel: {
+    fontSize: 22,
   },
   content: {
     flexDirection: 'row',
