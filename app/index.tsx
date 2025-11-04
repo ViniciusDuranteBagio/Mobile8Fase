@@ -9,7 +9,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Clique na Aba ao lado de Index 💋.</Text>
+      <Text>Clique na Aba ao lado de "Inicio" 💋.</Text>
     </View>
   );
 }
