@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-app-expo",
-    "slug": "my-app-expo",
+    "name": "atividade-componentes",
+    "slug": "atividade-componentes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myappexpo",
+    "scheme": "atividadecomponentes",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
