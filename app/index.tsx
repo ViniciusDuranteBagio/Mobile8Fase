@@ -20,7 +20,7 @@ export default function Index() {
        <Link href="/exercicio5">
         <Text>Exercicio 5</Text>
       </Link>
-       <Link href="/exercicio5">
+       <Link href="/exercicio6">
         <Text>Exercicio 6</Text>
       </Link>
     </View>
