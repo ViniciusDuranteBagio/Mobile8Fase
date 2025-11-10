@@ -1,20 +1,27 @@
-import { Text, View, Image } from "react-native";
+import { Text, View } from "react-native";
 import React from "react";
 import { Link } from "expo-router";
 
 export default function Index() {
   return (
     <View>
-      <Link rel="stylesheet" href="/atividade1">
-      <Text>Atividade 01</Text>
+      <Link href="/exercicio1">
+        <Text>Exercicio 1</Text>
       </Link>
-      <Link rel="stylesheet" href="/atividade2">
-      <Text>Atividade 02</Text>
+      <Link href="/exercicio2">
+        <Text>Exercicio 2</Text>
       </Link>
-      <Link rel="stylesheet" href="/atividade3">
-      <Text>Atividade 03</Text>
-      </Link><Link rel="stylesheet" href="/atividade4">
-      <Text>Atividade 04</Text>
+      <Link href="/exercicio3">
+        <Text>Exercicio 3</Text>
+      </Link>
+      <Link href="/exercicio4">
+        <Text>Exercicio 4</Text>
+      </Link>
+       <Link href="/exercicio5">
+        <Text>Exercicio 5</Text>
+      </Link>
+       <Link href="/exercicio5">
+        <Text>Exercicio 6</Text>
       </Link>
     </View>
   );
