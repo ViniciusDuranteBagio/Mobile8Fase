@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-app-expo",
-    "slug": "my-app-expo",
+    "name": "TrabalhoDurante",
+    "slug": "TrabalhoDurante",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myappexpo",
+    "scheme": "trabalhodurante",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
