@@ -1,29 +1,30 @@
 /**
- * App Principal - Distância entre Cidades
+ * App.js - Arquivo Principal
+ * Orquestra a navegação e gerencia o estado global do aplicativo
  * Utiliza arquitetura em camadas para separação de responsabilidades
  */
 
-import CalculateScreen from '@/screens/CalculateScreen';
-import HistoryScreen from '@/screens/HistoryScreen';
-import HomeScreen from '@/screens/HomeScreen';
-import { commonStyles } from '@/styles/theme';
 import { useState } from 'react';
 import { SafeAreaView, StatusBar } from 'react-native';
+import CalculateScreen from './screens/CalculateScreen';
+import HistoryScreen from './screens/HistoryScreen';
+import HomeScreen from './screens/HomeScreen';
+import { commonStyles } from './styles/theme';
 
 export default function App() {
   // Estado para controlar a tela atual
   const [currentScreen, setCurrentScreen] = useState('home');
   
   // Estado para armazenar o histórico de consultas
-  const [historico, setHistorico] = useState<any[]>([]);
+  const [historico, setHistorico] = useState([]);
   
   // Função para navegar entre telas
-  const handleNavigate = (screen: string) => {
+  const handleNavigate = (screen) => {
     setCurrentScreen(screen);
   };
   
   // Função para adicionar item ao histórico
-  const handleAddToHistory = (item: any) => {
+  const handleAddToHistory = (item) => {
     setHistorico(prev => [item, ...prev]);
   };
   
@@ -56,7 +57,7 @@ export default function App() {
   
   return (
     <SafeAreaView style={commonStyles.safeArea}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       {renderScreen()}
     </SafeAreaView>
   );
