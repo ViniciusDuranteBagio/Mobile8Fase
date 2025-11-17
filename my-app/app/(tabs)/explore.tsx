@@ -1,112 +1,220 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { useFavorites } from '@/context/FavoritesContext';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import type { Movie } from '@/services/moviesAPI';
+import { moviesAPI } from '@/services/moviesAPI';
 
-export default function TabTwoScreen() {
+export default function FavoritesScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const { favorites, removeFromFavorites, loading } = useFavorites();
+
+  // Função para formatar nota
+  const formatRating = (rating: number) => {
+    return rating.toFixed(1);
+  };
+
+  // Renderizar item de filme favorito
+  const renderFavoriteItem = ({ item: movie }: { item: Movie }) => (
+    <View style={[styles.movieCard, { backgroundColor: isDark ? '#1a1a1a' : '#fff' }]}>
+      <Image
+        source={{
+          uri: movie.poster_path 
+            ? moviesAPI.getImageUrl(movie.poster_path)
+            : 'https://via.placeholder.com/200x300?text=No+Image'
+        }}
+        style={styles.moviePoster}
+        resizeMode="cover"
+      />
+      <View style={styles.movieInfo}>
+        <ThemedText style={styles.movieTitle} numberOfLines={2}>
+          {movie.title}
+        </ThemedText>
+        <ThemedText style={styles.movieOverview} numberOfLines={3}>
+          {movie.overview || 'Sem descrição disponível'}
+        </ThemedText>
+        <View style={styles.movieMeta}>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={16} color="#FFD700" />
+            <ThemedText style={styles.rating}>
+              {formatRating(movie.vote_average)}
+            </ThemedText>
+          </View>
+          <ThemedText style={styles.releaseDate}>
+            {new Date(movie.release_date).getFullYear() || 'N/A'}
+          </ThemedText>
+        </View>
+      </View>
+      <TouchableOpacity 
+        style={styles.favoriteButton} 
+        onPress={() => removeFromFavorites(movie.id)}
+      >
+        <Ionicons name="heart" size={24} color="#ff4757" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+        <ThemedView style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <ThemedText style={styles.loadingText}>Carregando favoritos...</ThemedText>
+        </ThemedView>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title" style={styles.headerTitle}>❤️ Favoritos</ThemedText>
+        <ThemedText style={styles.headerSubtitle}>
+          {favorites.length > 0 ? `${favorites.length} filme${favorites.length > 1 ? 's' : ''} favorito${favorites.length > 1 ? 's' : ''}` : 'Seus filmes favoritos'}
         </ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
+
+      {favorites.length === 0 ? (
+        <ThemedView style={styles.emptyContainer}>
+          <Ionicons name="heart-outline" size={64} color="#999" />
+          <ThemedText style={styles.emptyTitle}>Nenhum favorito ainda</ThemedText>
+          <ThemedText style={styles.emptyDescription}>
+            Adicione filmes aos favoritos tocando no ícone de coração na tela principal
+          </ThemedText>
+        </ThemedView>
+      ) : (
+        <FlatList
+          data={favorites}
+          renderItem={renderFavoriteItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.moviesList}
+          showsVerticalScrollIndicator={false}
         />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    marginTop: 12,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e1e8ed',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  moviesList: {
+    padding: 16,
+  },
+  movieCard: {
     flexDirection: 'row',
-    gap: 8,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  moviePoster: {
+    width: 80,
+    height: 120,
+    borderRadius: 8,
+  },
+  movieInfo: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'space-between',
+  },
+  movieTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    lineHeight: 24,
+  },
+  movieOverview: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginVertical: 8,
+  },
+  movieMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  rating: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  releaseDate: {
+    fontSize: 14,
+    color: '#666',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 24,
   },
 });
