@@ -1,6 +1,7 @@
 import PokemonCard from "@/components/PokemonCard";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -18,6 +19,7 @@ export default function HomeScreen() {
   const [searchedPokemon, setSearchedPokemon] = useState<Pokemon | null>(null);
   const [searchFailed, setSearchFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const limit = 15;
 
   const filtered = pokemon.filter((p) =>
@@ -134,7 +136,18 @@ export default function HomeScreen() {
         numColumns={3}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         keyExtractor={(item) => item.name}
-        renderItem={({ item }) => <PokemonCard name={item.name} url={item.url} />}
+        renderItem={({ item }) => (
+          <PokemonCard
+            name={item.name}
+            url={item.url}
+            onPress={() =>
+              router.push({
+                pathname: "/pokemon-details",
+                params: { name: item.name, url: item.url }
+              })
+            }
+          />
+        )}
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
         ListFooterComponent={() => (

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function PokemonCard({ name, url }) {
+export default function PokemonCard({ name, url, onPress }) {
   const id = url.split("/")[6];
   const [isHover, setHover] = useState(false);
 
@@ -10,6 +10,7 @@ export default function PokemonCard({ name, url }) {
       style={[styles.card, isHover && styles.cardHover]}
       onHoverIn={() => setHover(true)}
       onHoverOut={() => setHover(false)}
+      onPress={onPress}
     >
       <View style={styles.innerBorder}>
         <View style={styles.imageWrapper}>
