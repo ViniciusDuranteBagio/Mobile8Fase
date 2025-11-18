@@ -16,6 +16,8 @@ export default function HomeScreen() {
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
   const [searchedPokemon, setSearchedPokemon] = useState<Pokemon | null>(null);
+  const [searchFailed, setSearchFailed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const limit = 15;
 
   const filtered = pokemon.filter((p) =>
@@ -28,16 +30,17 @@ export default function HomeScreen() {
     if (initial) setLoading(true);
     else setLoadingMore(true);
 
+    setError(null);
+
     try {
-      const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`
-      );
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
       const data = await response.json();
 
       setPokemon((prev) => (initial ? data.results : [...prev, ...data.results]));
       setOffset((prev) => prev + limit);
     } catch (err) {
       console.error(err);
+      setError("Não foi possível carregar os dados. Tente novamente.");
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -48,28 +51,31 @@ export default function HomeScreen() {
     const name = search.trim();
     if (!name) {
       setSearchedPokemon(null);
+      setSearchFailed(false);
       return;
     }
 
     const found = pokemon.find((p) => p.name.toLowerCase() === name.toLowerCase());
     if (found) {
       setSearchedPokemon(found);
+      setSearchFailed(false);
       return;
     }
 
     try {
-      const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`
-      );
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
       if (!response.ok) {
         setSearchedPokemon(null);
+        setSearchFailed(true);
         return;
       }
       const data = await response.json();
       const result: Pokemon = { name: data.name, url: `https://pokeapi.co/api/v2/pokemon/${data.id}/` };
       setSearchedPokemon(result);
+      setSearchFailed(false);
     } catch (err) {
       setSearchedPokemon(null);
+      setSearchFailed(true);
     }
   }
 
@@ -109,6 +115,19 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      {searchFailed && !searchedPokemon && (
+        <View style={styles.errorMessageContainer}>
+          <Text style={styles.errorMessageText}>
+            Nenhum pokemon encontrado!
+            Verifique se foi escrito corretamente, ou tente novamente mais tarde!
+          </Text>
+        </View>
+      )}
+      {error && (
+        <Text style={styles.errorMessageText}>
+          {error}
+        </Text>
+      )}
 
       <FlatList
         data={dataToShow}
@@ -187,6 +206,22 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  errorMessageContainer: {
+    padding: 10,
+    marginHorizontal: 16,
+    marginTop: 10,
+    borderRadius: 8,
+    backgroundColor: '#FFE5E5',
+    borderWidth: 1,
+    borderColor: '#FF4D4D',
+    alignItems: 'center',
+  },
+  errorMessageText: {
+    color: '#FF4D4D',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
   },
   loadMoreButton: {
     paddingHorizontal: 20,
