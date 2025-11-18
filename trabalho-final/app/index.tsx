@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import { CampoBusca } from '@/components/campo-busca';
@@ -12,18 +12,21 @@ const URL_API = 'https://swapi.dev/api/people';
 export default function TelaPersonagens() {
   const [personagens, definirPersonagens] = useState<PersonagemSwapi[]>([]);
   const [paginaAtual, definirPaginaAtual] = useState(1);
-  const [carregando, definirCarregando] = useState(false);
-  const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
+  const [carregandoPagina, definirCarregandoPagina] = useState(false);
+  const [mensagemErroPagina, definirMensagemErroPagina] = useState<string | null>(null);
   const [temProximaPagina, definirTemProximaPagina] = useState(false);
   const [temPaginaAnterior, definirTemPaginaAnterior] = useState(false);
   const [textoBusca, definirTextoBusca] = useState('');
+  const [personagensBusca, definirPersonagensBusca] = useState<PersonagemSwapi[]>([]);
+  const [carregandoBusca, definirCarregandoBusca] = useState(false);
+  const [mensagemErroBusca, definirMensagemErroBusca] = useState<string | null>(null);
 
   useEffect(() => {
     let componenteAtivo = true;
 
     async function carregarPersonagens() {
-      definirCarregando(true);
-      definirMensagemErro(null);
+      definirCarregandoPagina(true);
+      definirMensagemErroPagina(null);
 
       try {
         const resposta = await axios.get<RespostaSwapi>(`${URL_API}?page=${paginaAtual}`);
@@ -40,13 +43,13 @@ export default function TelaPersonagens() {
           return;
         }
 
-        definirMensagemErro('Erro ao carregar dados. Tente novamente.');
+        definirMensagemErroPagina('Erro ao carregar dados. Tente novamente.');
         definirPersonagens([]);
         definirTemProximaPagina(false);
         definirTemPaginaAnterior(paginaAtual > 1);
       } finally {
         if (componenteAtivo) {
-          definirCarregando(false);
+          definirCarregandoPagina(false);
         }
       }
     }
@@ -58,15 +61,55 @@ export default function TelaPersonagens() {
     };
   }, [paginaAtual]);
 
-  const personagensFiltrados = useMemo(() => {
-    const termo = textoBusca.trim().toLowerCase();
+  useEffect(() => {
+    const termo = textoBusca.trim();
+    let efeitoAtivo = true;
 
     if (!termo) {
-      return personagens;
+      definirPersonagensBusca([]);
+      definirMensagemErroBusca(null);
+      definirCarregandoBusca(false);
+      return;
     }
 
-    return personagens.filter((personagem) => personagem.name.toLowerCase().includes(termo));
-  }, [personagens, textoBusca]);
+    definirCarregandoBusca(true);
+    definirMensagemErroBusca(null);
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const resposta = await axios.get<RespostaSwapi>(
+          `${URL_API}?search=${encodeURIComponent(termo)}`,
+        );
+
+        if (!efeitoAtivo) {
+          return;
+        }
+
+        definirPersonagensBusca(resposta.data.results);
+      } catch {
+        if (!efeitoAtivo) {
+          return;
+        }
+
+        definirMensagemErroBusca('Erro ao buscar personagens. Tente novamente.');
+        definirPersonagensBusca([]);
+      } finally {
+        if (efeitoAtivo) {
+          definirCarregandoBusca(false);
+        }
+      }
+    }, 500);
+
+    return () => {
+      efeitoAtivo = false;
+      clearTimeout(timeoutId);
+    };
+  }, [textoBusca]);
+
+  const exibindoBusca = textoBusca.trim().length > 0;
+  const personagensVisiveis = exibindoBusca ? personagensBusca : personagens;
+  const carregandoAtual = exibindoBusca ? carregandoBusca : carregandoPagina;
+  const mensagemErroAtual = exibindoBusca ? mensagemErroBusca : mensagemErroPagina;
 
   const irParaProximaPagina = () => {
     if (temProximaPagina) {
@@ -87,32 +130,34 @@ export default function TelaPersonagens() {
 
         <CampoBusca valor={textoBusca} aoAlterar={definirTextoBusca} />
 
-        {carregando && (
+        {carregandoAtual && (
           <View style={estilos.conteudoCentralizado}>
             <ActivityIndicator size="large" color="#FFE81F" />
             <Text style={estilos.textoAjuda}>Carregando...</Text>
           </View>
         )}
 
-        {!carregando && mensagemErro && (
+        {!carregandoAtual && mensagemErroAtual && (
           <View style={estilos.conteudoCentralizado}>
-            <Text style={estilos.textoErro}>{mensagemErro}</Text>
+            <Text style={estilos.textoErro}>{mensagemErroAtual}</Text>
           </View>
         )}
 
-        {!carregando && !mensagemErro && (
-          <ListaPersonagens personagens={personagensFiltrados} />
+        {!carregandoAtual && !mensagemErroAtual && (
+          <ListaPersonagens personagens={personagensVisiveis} />
         )}
 
         <ControlesPaginacao
-          temPaginaAnterior={temPaginaAnterior}
-          temProximaPagina={temProximaPagina}
-          desabilitado={carregando}
+          temPaginaAnterior={exibindoBusca ? false : temPaginaAnterior}
+          temProximaPagina={exibindoBusca ? false : temProximaPagina}
+          desabilitado={carregandoAtual || exibindoBusca}
           aoPressionarAnterior={irParaPaginaAnterior}
           aoPressionarProxima={irParaProximaPagina}
         />
 
-        <Text style={estilos.textoPagina}>Página atual: {paginaAtual}</Text>
+        <Text style={estilos.textoPagina}>
+          {!exibindoBusca ? 'Página atual: ' + paginaAtual : ''}
+        </Text>
       </View>
     </SafeAreaView>
   );
