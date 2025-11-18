@@ -2,7 +2,7 @@ import PokemonCard from "@/components/PokemonCard";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, StyleSheet, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 interface Pokemon {
   name: string;
@@ -12,18 +12,33 @@ interface Pokemon {
 export default function HomeScreen() {
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
+  const limit = 21;
 
-  async function loadData() {
-    setLoading(true);
-    const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=200");
-    const data = await response.json();
-    setPokemon(data.results);
-    setLoading(false);
+  async function loadData(initial = false) {
+    if (initial) setLoading(true);
+    else setLoadingMore(true);
+
+    try {
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`
+      );
+      const data = await response.json();
+
+      setPokemon(prev => initial ? data.results : [...prev, ...data.results]);
+      setOffset(prev => prev + limit);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
   }
 
   useEffect(() => {
-    loadData();
+    loadData(true);
   }, []);
 
   if (loading)
@@ -43,18 +58,12 @@ export default function HomeScreen() {
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <Image
-            source={{
-              uri: "https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png",
-            }}
+            source={{ uri: "https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png" }}
             style={styles.logo}
           />
-          <ThemedText style={styles.subtitle}>
-            Explore o mundo Pokémon
-          </ThemedText>
+          <ThemedText style={styles.subtitle}>Explore o mundo Pokémon</ThemedText>
         </View>
-      </View>
 
-      <View style={{ flex: 1, marginTop: -65 }}>
         <View style={styles.searchBox}>
           <TextInput
             placeholder="Buscar Pokémon..."
@@ -64,22 +73,36 @@ export default function HomeScreen() {
             style={styles.input}
           />
         </View>
-
-        <FlatList
-          data={filtered}
-          numColumns={3}
-          columnWrapperStyle={{ justifyContent: "space-between", marginBottom: 5 }}
-          keyExtractor={(item) => item.name}
-          renderItem={({ item }) => (
-            <PokemonCard name={item.name} url={item.url}/>
-          )}
-          contentContainerStyle={{
-            padding: 16,
-            paddingBottom: 90,
-          }}
-          showsVerticalScrollIndicator={false}
-        />
       </View>
+
+      <FlatList
+        data={filtered}
+        numColumns={3}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
+        keyExtractor={(item) => item.name}
+        renderItem={({ item }) => <PokemonCard name={item.name} url={item.url} />}
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={() => (
+          <View style={{ padding: 16, alignItems: "center" }}>
+            {loadingMore ? (
+              <ActivityIndicator size="small" />
+            ) : (
+              <TouchableOpacity
+                onPress={() => loadData(false)}
+                style={{
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  backgroundColor: "#006EFF",
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ color: "#fff" }}>Carregar mais</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      />
     </ThemedView>
   );
 }
@@ -87,12 +110,8 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   headerWrapper: {
     backgroundColor: "#006EFF",
-    height: 200,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    position: "relative",
-    zIndex: 1,
-    elevation: 1,
   },
   header: {
     alignItems: "center",
@@ -113,9 +132,7 @@ const styles = StyleSheet.create({
   searchBox: {
     paddingHorizontal: 20,
     paddingTop: 10,
-    position: "relative",
-    elevation: 2,
-    zIndex: 2,
+    paddingBottom: 10,
   },
   input: {
     backgroundColor: "#fff",
