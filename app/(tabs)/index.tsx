@@ -42,11 +42,13 @@ export default function PokedexScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offset]);
 
+  // Função para buscar pokémons da API
   const fetchPokemons = async () => {
     try {
       setLoading(true);
       setError('');
 
+      // Faz a requisição para a PokéAPI
       const response = await fetch(
         `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
       );
@@ -57,13 +59,16 @@ export default function PokedexScreen() {
 
       const data: PokemonResponse = await response.json();
 
+      // Para cada pokémon, extraímos o ID e montamos a URL da imagem
       const pokemonList: Pokemon[] = data.results.map((pokemon) => {
+        // Extrai o ID da URL (ex: https://pokeapi.co/api/v2/pokemon/1/)
         const id = parseInt(pokemon.url.split('/').slice(-2, -1)[0]);
         
         return {
           name: pokemon.name,
           url: pokemon.url,
           id: id,
+          // URL da imagem oficial do pokémon
           image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
         };
       });
@@ -77,9 +82,12 @@ export default function PokedexScreen() {
     }
   };
 
-  const searchPokemon = async (name: string) => {
-    if (!name.trim()) {
+  // Função para buscar um pokémon específico por nome
+  const searchPokemon = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      // Se o campo estiver vazio, volta para a listagem normal
       setIsSearching(false);
+      setError('');
       fetchPokemons();
       return;
     }
@@ -89,8 +97,11 @@ export default function PokedexScreen() {
       setError('');
       setIsSearching(true);
 
+      // Limpa o termo de busca: remove espaços e coloca em minúscula
+      const cleanSearch = searchTerm.trim().toLowerCase();
+
       const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`
+        `https://pokeapi.co/api/v2/pokemon/${cleanSearch}`
       );
 
       if (!response.ok) {
@@ -103,25 +114,37 @@ export default function PokedexScreen() {
         name: data.name,
         url: `https://pokeapi.co/api/v2/pokemon/${data.id}/`,
         id: data.id,
-        image: data.sprites.other['official-artwork'].front_default,
+        image: data.sprites.other['official-artwork'].front_default || 
+               `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`,
       };
 
       setPokemons([foundPokemon]);
       setLoading(false);
     } catch (err) {
-      setError('Pokémon não encontrado. Tente outro nome.');
+      setError(`Pokémon "${searchTerm}" não encontrado. Use nomes em inglês (ex: pikachu, charizard) ou números (ex: 1, 25).`);
       setPokemons([]);
       setLoading(false);
     }
   };
 
+  // Função para lidar com a mudança no campo de busca (com debounce)
   const handleSearchChange = (text: string) => {
     setSearchText(text);
 
+    // Limpa o timeout anterior
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
 
+    // Se o campo estiver vazio, limpa imediatamente
+    if (!text.trim()) {
+      setIsSearching(false);
+      setError('');
+      fetchPokemons();
+      return;
+    }
+
+    // Cria um novo timeout para fazer a busca após 500ms
     const timeout = setTimeout(() => {
       searchPokemon(text);
     }, 500);
@@ -129,6 +152,7 @@ export default function PokedexScreen() {
     setSearchTimeout(timeout);
   };
 
+  // Função para limpar a busca
   const clearSearch = () => {
     setSearchText('');
     setIsSearching(false);
@@ -136,16 +160,19 @@ export default function PokedexScreen() {
     fetchPokemons();
   };
 
+  // Função para ir para a próxima página
   const nextPage = () => {
     setOffset(offset + LIMIT);
   };
 
+  // Função para voltar para a página anterior
   const previousPage = () => {
     if (offset >= LIMIT) {
       setOffset(offset - LIMIT);
     }
   };
 
+  // Renderiza cada card de pokémon
   const renderPokemonCard = ({ item }: { item: Pokemon }) => (
     <View style={styles.card}>
       <Image source={{ uri: item.image }} style={styles.pokemonImage} />
@@ -168,7 +195,7 @@ export default function PokedexScreen() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar pokémon por nome..."
+          placeholder="Buscar por nome (ex: pikachu) ou número (ex: 25)..."
           value={searchText}
           onChangeText={handleSearchChange}
           autoCapitalize="none"
@@ -194,7 +221,7 @@ export default function PokedexScreen() {
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={clearSearch}>
-            <Text style={styles.retryButtonText}>Tentar Novamente</Text>
+            <Text style={styles.retryButtonText}>Voltar para Lista</Text>
           </TouchableOpacity>
         </View>
       )}
