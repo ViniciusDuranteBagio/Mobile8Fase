@@ -15,7 +15,14 @@ export default function HomeScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
-  const limit = 21;
+  const [searchedPokemon, setSearchedPokemon] = useState<Pokemon | null>(null);
+  const limit = 15;
+
+  const filtered = pokemon.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const dataToShow = searchedPokemon ? [searchedPokemon] : filtered;
 
   async function loadData(initial = false) {
     if (initial) setLoading(true);
@@ -27,13 +34,42 @@ export default function HomeScreen() {
       );
       const data = await response.json();
 
-      setPokemon(prev => initial ? data.results : [...prev, ...data.results]);
-      setOffset(prev => prev + limit);
+      setPokemon((prev) => (initial ? data.results : [...prev, ...data.results]));
+      setOffset((prev) => prev + limit);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
+    }
+  }
+
+  async function searchPokemon() {
+    const name = search.trim();
+    if (!name) {
+      setSearchedPokemon(null);
+      return;
+    }
+
+    const found = pokemon.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    if (found) {
+      setSearchedPokemon(found);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`
+      );
+      if (!response.ok) {
+        setSearchedPokemon(null);
+        return;
+      }
+      const data = await response.json();
+      const result: Pokemon = { name: data.name, url: `https://pokeapi.co/api/v2/pokemon/${data.id}/` };
+      setSearchedPokemon(result);
+    } catch (err) {
+      setSearchedPokemon(null);
     }
   }
 
@@ -49,10 +85,6 @@ export default function HomeScreen() {
       </ThemedView>
     );
 
-  const filtered = pokemon.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
     <ThemedView style={{ flex: 1, backgroundColor: "#F4F6FB" }}>
       <View style={styles.headerWrapper}>
@@ -64,7 +96,7 @@ export default function HomeScreen() {
           <ThemedText style={styles.subtitle}>Explore o mundo Pokémon</ThemedText>
         </View>
 
-        <View style={styles.searchBox}>
+        <View style={styles.searchRow}>
           <TextInput
             placeholder="Buscar Pokémon..."
             placeholderTextColor="#888"
@@ -72,11 +104,14 @@ export default function HomeScreen() {
             onChangeText={setSearch}
             style={styles.input}
           />
+          <TouchableOpacity onPress={searchPokemon} style={styles.searchButton}>
+            <Text style={styles.searchButtonText}>Buscar</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       <FlatList
-        data={filtered}
+        data={dataToShow}
         numColumns={3}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         keyExtractor={(item) => item.name}
@@ -84,23 +119,20 @@ export default function HomeScreen() {
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
         ListFooterComponent={() => (
-          <View style={{ padding: 16, alignItems: "center" }}>
-            {loadingMore ? (
-              <ActivityIndicator size="small" />
-            ) : (
-              <TouchableOpacity
-                onPress={() => loadData(false)}
-                style={{
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                  backgroundColor: "#006EFF",
-                  borderRadius: 10,
-                }}
-              >
-                <Text style={{ color: "#fff" }}>Carregar mais</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          !searchedPokemon && (
+            <View style={{ padding: 16, alignItems: "center" }}>
+              {loadingMore ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <TouchableOpacity
+                  onPress={() => loadData(false)}
+                  style={styles.loadMoreButton}
+                >
+                  <Text style={{ color: "#fff" }}>Carregar mais</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )
         )}
       />
     </ThemedView>
@@ -112,6 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#006EFF",
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    paddingBottom: 10,
   },
   header: {
     alignItems: "center",
@@ -129,17 +162,37 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "300",
   },
-  searchBox: {
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
+  searchRow: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginTop: 10,
   },
   input: {
+    flex: 1,
     backgroundColor: "#fff",
     borderRadius: 14,
     padding: 12,
     fontSize: 15,
     elevation: 3,
+  },
+  searchButton: {
+    marginLeft: 10,
+    backgroundColor: "#006EFF",
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#ffffffff",
+    paddingHorizontal: 16,
+    justifyContent: "center",
+  },
+  searchButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  loadMoreButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#006EFF",
+    borderRadius: 10,
   },
   center: {
     flex: 1,

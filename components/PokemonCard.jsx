@@ -1,5 +1,5 @@
-import { View, Text, Image, StyleSheet, Pressable, Platform } from "react-native";
 import { useState } from "react";
+import { Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function PokemonCard({ name, url }) {
   const id = url.split("/")[6];
@@ -11,16 +11,18 @@ export default function PokemonCard({ name, url }) {
       onHoverIn={() => setHover(true)}
       onHoverOut={() => setHover(false)}
     >
-      <View style={styles.imageWrapper}>
-        <Image
-          source={{
-            uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-          }}
-          style={styles.img}
-        />
-      </View>
+      <View style={styles.innerBorder}>
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{
+              uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+            }}
+            style={styles.img}
+          />
+        </View>
 
-      <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name}>{name}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -28,32 +30,40 @@ export default function PokemonCard({ name, url }) {
 const styles = StyleSheet.create({
   card: {
     width: "30%",
-    backgroundColor: "#ffffff",
     borderRadius: 14,
-    paddingVertical: 12,
     marginBottom: 15,
     alignItems: "center",
+    backgroundColor: "#fefefe",
 
     // Sombra
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOpacity: 0.12,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 6,
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 6 },
+        shadowRadius: 10,
       },
       android: {
-        elevation: 3,
+        elevation: 5,
       },
       web: {
         transition: "0.2s",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.12)",
+        boxShadow: "0 6px 15px rgba(0,0,0,0.18)",
       },
     }),
   },
   cardHover: {
     transform: Platform.OS === "web" ? "scale(1.05)" : undefined,
     boxShadow: Platform.OS === "web" ? "0 4px 12px rgba(0,0,0,0.18)" : undefined,
+  },
+  innerBorder: {
+    width: "100%",
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#006eff75",
+    alignItems: "center",
+    paddingVertical: 10,
+    backgroundColor: "#fff",
   },
   imageWrapper: {
     backgroundColor: "#F2F7FF",
