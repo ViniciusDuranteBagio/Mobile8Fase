@@ -22,7 +22,6 @@ export default function PokemonDetails() {
 	const [data, setData] = useState<PokemonDetails | null>(null);
 	const [loading, setLoading] = useState(true);
 	const { toggleFavorite, favorites } = useTrainer();
-	const [favorite, setFavorite] = useState(false);
 
 	async function loadDetails() {
 		try {

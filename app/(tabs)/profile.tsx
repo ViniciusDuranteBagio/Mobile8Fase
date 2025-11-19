@@ -1,6 +1,6 @@
 import { useTrainer } from "@/contexts/TrainerContext";
 import { useState } from "react";
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function Profile() {
   const { name, avatar, clan, setName, setAvatar, setClan, favorites } =
@@ -29,8 +29,8 @@ export default function Profile() {
     },
   ];
 
-  return (
-    <View style={styles.container}>
+  const content = (
+    <>
       <View style={styles.header}>
         <Image
           source={{
@@ -42,7 +42,7 @@ export default function Profile() {
         />
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerName}>{name || "Treinador sem nome"}</Text>
+          <Text style={styles.headerName}>{name || "Treinador"}</Text>
 
           {clan && (
             <View style={styles.clanTag}>
@@ -107,6 +107,27 @@ export default function Profile() {
         </View>
       )}
 
+      <View style={styles.infoCard}>
+        <Text style={styles.infoTitle}>Informações do Treinador</Text>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Pokémons capturados:</Text>
+          <Text style={styles.infoValue}>{favorites.length}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Clã atual:</Text>
+          <Text style={styles.infoValue}>
+            {clan ? clans.find((c) => c.id === clan)?.label : "Nenhum"}
+          </Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Nível do Treinador:</Text>
+          <Text style={styles.infoValue}>{Math.floor(favorites.length / 3) + 1}</Text>
+        </View>
+      </View>
+
       <Text style={styles.collectionTitle}>Coleção do Treinador</Text>
 
       <View style={styles.collectionBox}>
@@ -153,7 +174,18 @@ export default function Profile() {
           <Text style={styles.pageArrow}>Próxima Página</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </>
+  );
+
+  return Platform.OS === "web" ? (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
+      {content}
+    </ScrollView>
+  ) : (
+    <View style={styles.container}>{content}</View>
   );
 }
 
@@ -162,6 +194,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#F4F7FE",
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",
@@ -279,6 +314,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#304E9A",
     fontWeight: "600",
+  },
+
+  infoCard: {
+    backgroundColor: "#FFFFFF",
+    padding: 15,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#006eff75",
+    marginBottom: 20,
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#304E9A",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  infoLabel: {
+    color: "#304E9A",
+    fontWeight: "600",
+  },
+  infoValue: {
+    color: "#1A4ACF",
+    fontWeight: "bold",
   },
 
   collectionTitle: {
