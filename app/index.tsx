@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const API_KEY = "SUA_API_KEY_AQUI"; 
+const API_KEY = "SUA_API_KEY_AQUI";
 // Pegue aqui: https://developer.themoviedb.org/reference/intro/authentication
 
 export default function App() {
