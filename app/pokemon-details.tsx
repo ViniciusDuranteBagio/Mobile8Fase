@@ -1,3 +1,4 @@
+import { useTrainer } from "@/contexts/TrainerContext";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -20,6 +21,7 @@ export default function PokemonDetails() {
 
 	const [data, setData] = useState<PokemonDetails | null>(null);
 	const [loading, setLoading] = useState(true);
+	const { toggleFavorite, favorites } = useTrainer();
 	const [favorite, setFavorite] = useState(false);
 
 	async function loadDetails() {
@@ -53,10 +55,10 @@ export default function PokemonDetails() {
 
 				<TouchableOpacity
 					style={styles.star}
-					onPress={() => setFavorite(!favorite)}
+					onPress={() => toggleFavorite(data)}
 				>
 					<Text style={{ fontSize: 32 }}>
-						{favorite ? "⭐" : "☆"}
+						{Array.isArray(favorites) && favorites.some(f => f.name === data.name) ? "⭐" : "☆"}
 					</Text>
 				</TouchableOpacity>
 

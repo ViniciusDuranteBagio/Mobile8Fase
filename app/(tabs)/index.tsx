@@ -34,15 +34,40 @@ export default function HomeScreen() {
 
     setError(null);
 
+    const primaryLimit = limit;
+    const fallbackLimit = 21;
+
     try {
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon?limit=${primaryLimit}&offset=${offset}`
+      );
+
+      if (!response.ok) throw new Error("Erro no limit primário");
+
       const data = await response.json();
 
-      setPokemon((prev) => (initial ? data.results : [...prev, ...data.results]));
-      setOffset((prev) => prev + limit);
+      setPokemon((prev) =>
+        initial ? data.results : [...prev, ...data.results]
+      );
+      setOffset((prev) => prev + primaryLimit);
     } catch (err) {
-      console.error(err);
-      setError("Não foi possível carregar os dados. Tente novamente.");
+      try {
+        const response2 = await fetch(
+          `https://pokeapi.co/api/v2/pokemon?limit=${fallbackLimit}&offset=${offset}`
+        );
+
+        if (!response2.ok) throw new Error("Erro no limit secundário");
+
+        const data2 = await response2.json();
+
+        setPokemon((prev) =>
+          initial ? data2.results : [...prev, ...data2.results]
+        );
+        setOffset((prev) => prev + fallbackLimit);
+      } catch (err2) {
+        console.error(err2);
+        setError("Erro ao carregar os dados... Tente novamente mais tarde.");
+      }
     } finally {
       setLoading(false);
       setLoadingMore(false);
