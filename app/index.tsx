@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>🎬 Filmes Populares</Text>
+      <Text style={styles.titulo}>Filmes Populares</Text>
 
       {loading && <ActivityIndicator size="large" color="#fff" />}
       {erro && <Text style={styles.erro}>Erro ao carregar dados…</Text>}

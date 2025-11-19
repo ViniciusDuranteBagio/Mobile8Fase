@@ -1,102 +1,145 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-type DogImage = {
-  message: string; 
-  status: string;
+type Movie = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  overview: string;
 };
 
 export default function ApiScreen() {
-  const [dogFetch, setDogFetch] = useState<DogImage | null>(null);
-  const [loadingFetch, setLoadingFetch] = useState(true);
-  const [errorFetch, setErrorFetch] = useState<string | null>(null);
 
-  const [dogAxios, setDogAxios] = useState<DogImage | null>(null);
-  const [loadingAxios, setLoadingAxios] = useState(true);
-  const [errorAxios, setErrorAxios] = useState<string | null>(null);
+  // MINHA API KEY v3 DO TMDB
+  const API_KEY = "c321b0d8efd3ad8fdb39d502a67e183e";
 
-  // --- FETCH ---
-  async function carregarComFetch() {
+  const [page, setPage] = useState(1);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  async function carregarFilmes() {
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await fetch("https://dog.ceo/api/breeds/image/random");
-      const json: DogImage = await response.json();
-      setDogFetch(json);
-    } catch (error) {
-      setErrorFetch(String(error));
-    } finally {
-      setLoadingFetch(false);
-    }
-  }
-
-  // --- AXIOS ---
-  async function carregarComAxios() {
-    try {
-      const response = await axios.get<DogImage>(
-        "https://dog.ceo/api/breeds/image/random"
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=pt-BR&page=${page}`
       );
-      setDogAxios(response.data);
-    } catch (error: any) {
-      setErrorAxios(error.message);
+
+      if (!response.ok) {
+        throw new Error("Erro ao carregar filmes do TMDB");
+      }
+
+      const data = await response.json();
+      setMovies(data.results);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
     } finally {
-      setLoadingAxios(false);
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    carregarComFetch();
-    carregarComAxios();
-  }, []);
+    carregarFilmes();
+  }, [page]);
+
+  function getImageUrl(path: string | null) {
+    if (!path) return null;
+    return `https://image.tmdb.org/t/p/w500${path}`;
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Imagem usando Fetch</Text>
+    <ScrollView style={styles.scroll}>
+      <View style={styles.container}>
+        <Text style={styles.title}>🎬 Filmes Populares</Text>
 
-      {loadingFetch && <ActivityIndicator size="large" />}
-      {errorFetch && <Text style={styles.error}>{errorFetch}</Text>}
+        {loading && <ActivityIndicator size="large" color="#000" />}
+        {error && <Text style={styles.error}>{error}</Text>}
 
-      {dogFetch && (
-        <Image
-          source={{ uri: dogFetch.message }}
-          style={styles.image}
-        />
-      )}
+        {!loading &&
+          !error &&
+          movies.map((movie) => (
+            <View key={movie.id} style={styles.card}>
+              {movie.poster_path ? (
+                <Image
+                  source={{ uri: getImageUrl(movie.poster_path)! }}
+                  style={styles.poster}
+                />
+              ) : (
+                <View style={[styles.poster, styles.noImage]}>
+                  <Text style={styles.noImageText}>Sem imagem</Text>
+                </View>
+              )}
 
-      <Text style={styles.title}>Imagem usando Axios</Text>
+              <Text style={styles.movieTitle}>{movie.title}</Text>
+              <Text style={styles.overview}>
+                {movie.overview.length > 200
+                  ? movie.overview.substring(0, 200) + "..."
+                  : movie.overview}
+              </Text>
+            </View>
+          ))}
 
-      {loadingAxios && <ActivityIndicator size="large" />}
-      {errorAxios && <Text style={styles.error}>{errorAxios}</Text>}
+        <View style={styles.buttons}>
+          <TouchableOpacity
+            disabled={page === 1}
+            style={[styles.btn, page === 1 && styles.btnDisabled]}
+            onPress={() => setPage(page - 1)}
+          >
+            <Text style={styles.btnText}>← Página Anterior</Text>
+          </TouchableOpacity>
 
-      {dogAxios && (
-        <Image
-          source={{ uri: dogAxios.message }}
-          style={styles.image}
-        />
-      )}
-    </View>
+          <TouchableOpacity style={styles.btn} onPress={() => setPage(page + 1)}>
+            <Text style={styles.btnText}>Próxima Página →</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-    gap: 24,
-    backgroundColor: '#f8f8f8',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  error: {
-    color: 'red',
-  },
-  image: {
-    width: 250,
-    height: 250,
+  scroll: { flex: 1, backgroundColor: "#f4f4f4" },
+  container: { padding: 16 },
+  title: { fontSize: 22, fontWeight: "bold", marginVertical: 16 },
+  error: { color: "red", marginBottom: 16 },
+  card: {
+    backgroundColor: "#fff",
     borderRadius: 10,
-    marginTop: 10,
+    padding: 16,
+    marginBottom: 20,
+    elevation: 3,
   },
+  poster: {
+    width: "100%",
+    height: 300,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  noImage: {
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noImageText: {
+    color: "#666",
+    fontSize: 16,
+  },
+  movieTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 6 },
+  overview: { fontSize: 14, color: "#444" },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 20,
+  },
+  btn: {
+    backgroundColor: "#007bff",
+    padding: 12,
+    borderRadius: 8,
+  },
+  btnDisabled: {
+    backgroundColor: "#999",
+  },
+  btnText: { color: "#fff", fontSize: 16 },
 });
