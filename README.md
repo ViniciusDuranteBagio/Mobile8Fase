@@ -54,9 +54,9 @@ A interface é organizada em **abas**, com destaque para a **Pokedex** e **Perfi
 
 ## 5. Screenshots do App
   
-![Pokédex](Pokedex.jpeg)  
-![Pesquisa Pokédex](Pesquisa-Pokedex.jpeg) 
-![Favoritando Pokédex](Favoritando-Pokedex.jpeg)  
-![Perfil](Perfil.jpeg)  
-![Editando Perfil](Perfil-Editando.jpeg)  
-![Perfil Paginação](Perfil-ProximaPagina.jpeg) 
+![Pokédex](assets/images/Pokedex.jpeg)  
+![Pesquisa Pokédex](assets/images/Pesquisa-Pokedex.jpeg) 
+![Favoritando Pokédex](assets/images/Favoritando-Pokedex.jpeg)  
+![Perfil](assets/images/Perfil.jpeg)  
+![Editando Perfil](assets/images/Perfil-Editando.jpeg)  
+![Perfil Paginação](assets/images/Perfil-ProximaPagina.jpeg) 
