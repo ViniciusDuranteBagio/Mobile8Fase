@@ -9,7 +9,8 @@ export default function TabLayout() {
         headerShown: true,
         tabBarActiveTintColor: '#007AFF',
         tabBarInactiveTintColor: '#8E8E93',
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -20,7 +21,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="posts"
+        options={{
+          title: 'Posts',
+          tabBarLabel: 'Posts',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="document-text" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
-
