@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-app-expo",
-    "slug": "my-app-expo",
+    "name": "app-rick-morty",
+    "slug": "app-rick-morty",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myappexpo",
+    "scheme": "apprickmorty",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
