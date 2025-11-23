@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function Ticks() {

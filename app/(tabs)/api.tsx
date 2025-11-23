@@ -1,5 +1,13 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type Movie = {
   id: number;
@@ -9,9 +17,7 @@ type Movie = {
 };
 
 export default function ApiScreen() {
-
-  // MINHA API KEY v3 DO TMDB
-  const API_KEY = "c321b0d8efd3ad8fdb39d502a67e183e";
+  const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMzIxYjBkOGVmZDNhZDhmZGIzOWQ1MDJhNjdlMTgzZSIsIm5iZiI6MTc2MzUxMjc5Ni43NDQsInN1YiI6IjY5MWQxMWRjNTBlYjAxYzc5ZTJlMTdkYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.UqVEeGANY66H1XnryLIuV8hr9lz151fqNdgxMmScdNY";
 
   const [page, setPage] = useState(1);
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -24,7 +30,13 @@ export default function ApiScreen() {
 
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=pt-BR&page=${page}`
+        `https://api.themoviedb.org/3/movie/popular?language=pt-BR&page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            Accept: "application/json",
+          },
+        }
       );
 
       if (!response.ok) {
