@@ -214,11 +214,13 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerBackText: {
+    fontFamily: "PressStart2P",
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
   headerTitle: {
+    fontFamily: "PressStart2P",
     flex: 1,
     fontSize: 24,
     fontWeight: 'bold',
@@ -233,6 +235,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   idText: {
+    fontFamily: "PressStart2P",
     color: '#FF6B35',
     fontSize: 14,
     fontWeight: 'bold',
@@ -265,6 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
+    fontFamily: "PressStart2P",
     fontSize: 20,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -291,6 +295,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E74C3C',
   },
   tagText: {
+    fontFamily: "PressStart2P",
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',

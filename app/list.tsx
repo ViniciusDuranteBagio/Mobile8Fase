@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+    fontFamily: "PressStart2P"
   },
   header: {
     backgroundColor: '#FF6B35',
@@ -186,6 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   headerTitle: {
+    fontFamily: "PressStart2P",
     fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
@@ -207,6 +209,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   loadingText: {
+    fontFamily: "PressStart2P",
     marginTop: 16,
     fontSize: 16,
     color: '#666',
@@ -246,6 +249,7 @@ const styles = StyleSheet.create({
   },
   idText: {
     color: '#FFFFFF',
+    fontFamily: "PressStart2P",
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -253,6 +257,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   digimonName: {
+    fontFamily: "PressStart2P",
     fontSize: 20,
     fontWeight: '700',
     color: '#2D3436',
@@ -349,6 +354,7 @@ const styles = StyleSheet.create({
   },
   navButtonText: {
     color: '#FFFFFF',
+    fontFamily: "PressStart2P",
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
@@ -366,6 +372,7 @@ const styles = StyleSheet.create({
   },
   pageText: {
     fontSize: 16,
+    fontFamily: "PressStart2P",
     fontWeight: '600',
     color: '#2D3436',
   },
