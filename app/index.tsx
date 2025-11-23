@@ -111,7 +111,6 @@ export default function Index() {
 
             <View style={styles.tempBox}>
               <Text style={styles.temp}>{cidadeAtual.data && cidadeAtual.data.current && cidadeAtual.data.current.temperature != null ? cidadeAtual.data.current.temperature + "°C" : "N/A"}</Text>
-              <Text style={styles.textoClaro}>{cidadeAtual.data && cidadeAtual.data.current && Array.isArray(cidadeAtual.data.current.weather_descriptions) && cidadeAtual.data.current.weather_descriptions.length > 0 ? cidadeAtual.data.current.weather_descriptions[0] : "Sem descrição"}</Text>
               <Text style={styles.textoClaro}>Sensação: {cidadeAtual.data && cidadeAtual.data.current && cidadeAtual.data.current.feelslike != null ? cidadeAtual.data.current.feelslike + "°C" : "N/A"}</Text>
             </View>
 
@@ -122,27 +121,11 @@ export default function Index() {
               </View>
               <View style={styles.linha}>
                 <Text style={styles.textoClaro}>Vento:</Text>
-                <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.wind_speed + " km/h " + cidadeAtual.data.current.wind_dir : "N/A"}</Text>
-              </View>
-              <View style={styles.linha}>
-                <Text style={styles.textoClaro}>Pressão:</Text>
-                <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.pressure + " mb" : "N/A"}</Text>
-              </View>
-              <View style={styles.linha}>
-                <Text style={styles.textoClaro}>UV:</Text>
-                <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.uv_index : "N/A"}</Text>
-              </View>
-              <View style={styles.linha}>
-                <Text style={styles.textoClaro}>Visibilidade:</Text>
-                <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.visibility + " km" : "N/A"}</Text>
+                <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.wind_speed + " km/h" : "N/A"}</Text>
               </View>
               <View style={styles.linha}>
                 <Text style={styles.textoClaro}>Chuva:</Text>
                 <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.precip + " mm" : "N/A"}</Text>
-              </View>
-              <View style={styles.linha}>
-                <Text style={styles.textoClaro}>Nuvens:</Text>
-                <Text style={styles.valor}>{cidadeAtual.data && cidadeAtual.data.current ? cidadeAtual.data.current.cloudcover + "%" : "N/A"}</Text>
               </View>
             </View>
           </View>

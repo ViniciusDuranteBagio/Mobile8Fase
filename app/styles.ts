@@ -75,8 +75,8 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   icone: {
-    width: 120,
-    height: 120,
+    width: 70,
+    height: 70,
     alignSelf: "center",
     marginVertical: 15,
   },
