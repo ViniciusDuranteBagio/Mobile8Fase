@@ -1,21 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import Pokedex from "@/components/Pokedex";
+import { View } from "react-native";
 
 export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Index</Text>
+    <View style={{ flex: 1 }}>
+      <Pokedex />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  }
-});
