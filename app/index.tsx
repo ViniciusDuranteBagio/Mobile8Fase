@@ -1,61 +1,102 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, TextInput, Button, Image, StyleSheet } from 'react-native';
 
-export default function Home() {
+export default function App() {
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(false);
+  const [busca, setBusca] = useState('');
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setErro(false);
+
+      const url = `https://rickandmortyapi.com/api/character/?page=${page}&name=${busca}`;
+      const response = await fetch(url);
+
+      if (!response.ok) throw new Error('Erro ao buscar dados');
+
+      const json = await response.json();
+      setData(json.results);
+    } catch (err) {
+      setErro(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [page, busca]);
+
+  const itemDaApi = ({ item }: { item: any }) => (
+  <View style={styles.card}>
+    <Image source={{ uri: item.image }} style={styles.img} />
+    <Text style={styles.title}>{item.name}</Text>
+    <Text>Status: {item.status}</Text>
+    <Text>Espécie: {item.species}</Text>
+  </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Atividades React Native</Text>
+      <Text style={styles.header}>Personagens de Rick e Morty</Text>
 
-      <Link href="/atividade1" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.text}>Atividade 1</Text>
-        </TouchableOpacity>
-      </Link>
+      <TextInput
+        style={styles.input}
+        placeholder="Buscar por nome..."
+        value={busca}
+        onChangeText={(t) => setBusca(t)}
+      />
 
-      <Link href="/atividade2" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.text}>Atividade 2</Text>
-        </TouchableOpacity>
-      </Link>
+      {loading && <ActivityIndicator size="large" />}
 
-      <Link href="/atividade3" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.text}>Atividade 3</Text>
-        </TouchableOpacity>
-      </Link>
+      {erro && <Text style={styles.erro}>Erro ao carregar dados...</Text>}
 
-      <Link href="/atividade4" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.text}>Atividade 4</Text>
-        </TouchableOpacity>
-      </Link>
+      {!loading && !erro && (
+        <FlatList
+          data={data}
+          renderItem={itemDaApi}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
+
+      <View style={styles.row}>
+        <Button
+          title="Página Anterior"
+          onPress={() => page > 1 && setPage(page - 1)}
+          disabled={page === 1}
+        />
+        <Text style={styles.page}>Página: {page}</Text>
+        <Button title="Próxima Página" onPress={() => setPage(page + 1)} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
+  container: { flex: 1, padding: 20, backgroundColor: '#f4f4f4' },
+  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: "#007bff",
+  card: {
+    backgroundColor: '#fff',
     padding: 15,
+    marginBottom: 12,
     borderRadius: 10,
-    marginVertical: 10,
-    width: 200,
-    alignItems: "center",
+    elevation: 3,
   },
-  text: {
-    color: "#fff",
-    fontSize: 18,
-  },
+  img: { width: '100%', height: 200, borderRadius: 10, marginBottom: 10 },
+  title: { fontSize: 18, fontWeight: 'bold' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 },
+  page: { fontSize: 16 },
+  erro: { color: 'red', textAlign: 'center', marginBottom: 10 },
 });
