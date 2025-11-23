@@ -1,15 +1,15 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import PokemonDetails from './PokemonDetails';
 
@@ -39,42 +39,35 @@ interface PokemonDetails {
 }
 
 export default function Pokedex() {
-  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  const [filteredPokemons, setFilteredPokemons] = useState<Pokemon[]>([]);
+  const [allPokemons, setAllPokemons] = useState<Pokemon[]>([]);
+  const [displayedPokemons, setDisplayedPokemons] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [selectedPokemonId, setSelectedPokemonId] = useState<number | null>(null);
+  const flatListRef = React.useRef<FlatList>(null);
   const itemsPerPage = 30;
 
   useEffect(() => {
-    fetchPokemons();
-  }, [page]);
+    fetchAllPokemons();
+  }, []);
 
   useEffect(() => {
-    if (searchText.trim() === '') {
-      setFilteredPokemons(pokemons);
-    } else {
-      const filtered = pokemons.filter((pokemon) =>
-        pokemon.name.toLowerCase().includes(searchText.toLowerCase())
-      );
+    setPage(0);
+  }, [searchText]);
 
-      const sortedFiltered = filtered.sort((a, b) => 
-        a.name.localeCompare(b.name)
-      );
-      setFilteredPokemons(sortedFiltered);
-    }
-  }, [searchText, pokemons]);
+  useEffect(() => {
+    updateDisplayedPokemons();
+  }, [page, searchText, allPokemons]);
 
-  const fetchPokemons = async () => {
+  const fetchAllPokemons = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const offset = page * itemsPerPage;
       const response = await axios.get(
-        `https://pokeapi.co/api/v2/pokemon?limit=${itemsPerPage}&offset=${offset}`
+        'https://pokeapi.co/api/v2/pokemon?limit=251&offset=0'
       );
 
       const pokemonDetails = await Promise.all(
@@ -94,8 +87,7 @@ export default function Pokedex() {
         a.name.localeCompare(b.name)
       );
 
-      setPokemons(sortedPokemons);
-      setFilteredPokemons(sortedPokemons);
+      setAllPokemons(sortedPokemons);
     } catch (err) {
       setError('Erro ao carregar dados. Tente novamente!');
       console.error(err);
@@ -104,16 +96,48 @@ export default function Pokedex() {
     }
   };
 
+  const updateDisplayedPokemons = () => {
+    let pokemonsToDisplay = allPokemons;
+
+    if (searchText.trim() !== '') {
+      pokemonsToDisplay = allPokemons.filter((pokemon) =>
+        pokemon.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedPokemons = pokemonsToDisplay.slice(startIndex, endIndex);
+
+    setDisplayedPokemons(paginatedPokemons);
+  };
+
   const handleNextPage = () => {
-    setPage((prev) => prev + 1);
-    setSearchText('');
+    const filteredCount = searchText.trim() !== '' 
+      ? allPokemons.filter((p) => p.name.toLowerCase().includes(searchText.toLowerCase())).length
+      : allPokemons.length;
+    
+    const maxPage = Math.ceil(filteredCount / itemsPerPage) - 1;
+    
+    if (page < maxPage) {
+      setPage((prev) => prev + 1);
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+    }
   };
 
   const handlePreviousPage = () => {
     if (page > 0) {
       setPage((prev) => prev - 1);
-      setSearchText('');
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     }
+  };
+
+  const getTotalPages = () => {
+    const filteredCount = searchText.trim() !== '' 
+      ? allPokemons.filter((p) => p.name.toLowerCase().includes(searchText.toLowerCase())).length
+      : allPokemons.length;
+    
+    return Math.ceil(filteredCount / itemsPerPage);
   };
 
   const getTypeColor = (type: string) => {
@@ -169,7 +193,7 @@ export default function Pokedex() {
       <View style={styles.header}>
         <Text style={styles.title}>Pokédex</Text>
         <Text style={styles.subtitle}>
-          {filteredPokemons.length} Pokémon{filteredPokemons.length !== 1 ? 's' : ''}
+          {allPokemons.length} Pokémon{allPokemons.length !== 1 ? 's' : ''} | Página {page + 1}
         </Text>
       </View>
 
@@ -191,14 +215,15 @@ export default function Pokedex() {
       ) : error ? (
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchPokemons}>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchAllPokemons}>
             <Text style={styles.retryButtonText}>Tentar Novamente</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <>
           <FlatList
-            data={filteredPokemons}
+            ref={flatListRef}
+            data={displayedPokemons}
             renderItem={renderPokemonCard}
             keyExtractor={(item) => item.id.toString()}
             numColumns={2}
@@ -210,20 +235,29 @@ export default function Pokedex() {
             }
           />
 
-          {searchText === '' && (
+          {displayedPokemons.length > 0 && (
             <View style={styles.navigationContainer}>
               <TouchableOpacity
                 style={[styles.navButton, page === 0 && styles.navButtonDisabled]}
                 onPress={handlePreviousPage}
                 disabled={page === 0}
               >
-                <Text style={styles.navButtonText}>← Página Anterior</Text>
+                <Text style={styles.navButtonText}>← Anterior</Text>
               </TouchableOpacity>
 
-              <Text style={styles.pageIndicator}>Página {page + 1}</Text>
+              <Text style={styles.pageIndicator}>
+                Página {page + 1} de {getTotalPages()}
+              </Text>
 
-              <TouchableOpacity style={styles.navButton} onPress={handleNextPage}>
-                <Text style={styles.navButtonText}>Próxima Página →</Text>
+              <TouchableOpacity 
+                style={[
+                  styles.navButton, 
+                  page >= getTotalPages() - 1 && styles.navButtonDisabled
+                ]}
+                onPress={handleNextPage}
+                disabled={page >= getTotalPages() - 1}
+              >
+                <Text style={styles.navButtonText}>Próxima →</Text>
               </TouchableOpacity>
             </View>
           )}
