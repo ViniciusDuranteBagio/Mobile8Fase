@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-app-expo",
-    "slug": "my-app-expo",
+    "name": "trabalho-final",
+    "slug": "trabalho-final",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myappexpo",
+    "scheme": "trabalhofinal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
