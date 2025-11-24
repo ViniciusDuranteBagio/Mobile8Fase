@@ -14,7 +14,7 @@ export default function RootLayout() {
         headerShown: false, // Remove header de todas as páginas
       }}
     >
-      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="list" />
       <Stack.Screen name="digimon/[id]" />
     </Stack>
     </ThemeProvider>

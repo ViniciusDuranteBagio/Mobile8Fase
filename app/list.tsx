@@ -33,14 +33,16 @@ export default function List() {
       setError(null);
       
       const data: DigimonResponse = await get(`/digimon?page=${page}`);
-      
+      console.log(data);
       setDigimons(data.content);
       setCurrentPage(data.pageable.currentPage);
       setTotalPages(data.pageable.totalPages);
     } catch (err: any) {
+      console.log(err);
       setError(err.message || 'Erro ao buscar digimon');
       console.error('Erro:', err);
     } finally {
+      console.log('finaly');
       setLoading(false);
     }
   }

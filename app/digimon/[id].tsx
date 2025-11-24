@@ -42,21 +42,26 @@ export default function DigimonDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchDigimon() {
+  async function fetchDigimon(id:any) {
       try {
+        console.log('inicinado try')
         setLoading(true);
+        console.log('inicinado try')
         const data: DigimonDetails = await get(`/digimon/${id}`);
         setDigimon(data);
       } catch (err: any) {
+        console.log('errro')
+        console.log(err)
         setError(err.message || 'Erro ao buscar detalhes do digimon');
       } finally {
+        console.log('finally')
         setLoading(false);
       }
     }
 
+  useEffect(() => {
     if (id) {
-      fetchDigimon();
+      fetchDigimon(id);
     }
   }, [id]);
 
