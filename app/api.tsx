@@ -1,6 +1,6 @@
 const API_KEY = "f8039cc52d4ea640ff0c9164b5371e01";
 
-export function fetchWeatherData(nomeCidade: string) {
+export function apiClima(nomeCidade: string) {
   if (nomeCidade === "") {
     throw new Error("Digite o nome de uma cidade");
   }

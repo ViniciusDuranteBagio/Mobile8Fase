@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { fetchWeatherData } from "./api";
+import { apiClima } from "./api";
 import { styles } from "./styles";
 
 export default function Index() {
@@ -16,22 +16,21 @@ export default function Index() {
       return;
     }
 
-    let tem = false;
+    let cidadeJaBuscada = false;
     for (let i = 0; i < cidades.length; i++) {
       if (cidades[i].city.toLowerCase() === input.toLowerCase()) {
-        tem = true;
+        cidadeJaBuscada = true;
         break;
       }
     }
-    if (tem === true) {
+    if (cidadeJaBuscada) {
       Alert.alert("Aviso", "Cidade já buscada");
       return;
     }
-
     setCarregando(true);
     setErro("");
 
-    fetchWeatherData(input)
+    apiClima(input)
       .then(function(dados) {
         const nova = {
           city: input,
